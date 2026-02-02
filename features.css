@@ -43,7 +43,7 @@
     transition: stroke-dashoffset 1s linear;
 }
 
-.time-text {
+time-text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -51,17 +51,25 @@
     font-size: 4rem;
     font-weight: bold;
     color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
 .time-text span {
     display: inline-block;
-    min-width: 70px;
+    width: 80px;
     text-align: center;
+    font-variant-numeric: tabular-nums; /* Makes numbers same width */
 }
 
 .time-colon {
-    animation: blink 2s infinite;
+    width: 20px !important;
+    text-align: center;
+    animation: blink 1s infinite;
 }
+
 
 @keyframes blink {
     0%, 50% { opacity: 1; }
