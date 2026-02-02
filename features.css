@@ -737,3 +737,370 @@ time-display-large {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ===== REAL AI ASSISTANT STYLES ===== */
+.api-setup-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.api-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.api-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.collapse-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.collapse-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: rotate(180deg);
+}
+
+.api-content {
+    padding: 25px;
+}
+
+.api-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.api-option {
+    flex: 1;
+    min-width: 250px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.api-option:hover {
+    border-color: #667eea;
+    transform: translateY(-3px);
+}
+
+.api-option.active {
+    border-color: #667eea;
+    background: #f0f3ff;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+}
+
+.api-option h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.api-option ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.api-option li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.api-option a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.api-option a:hover {
+    text-decoration: underline;
+}
+
+.api-input-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.api-input-section .input-group {
+    margin-bottom: 0;
+}
+
+#api-key-input {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+.api-key-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.api-key-actions button {
+    padding: 12px 25px;
+}
+
+.api-test-result {
+    margin-top: 20px;
+    min-height: 50px;
+}
+
+.api-message {
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease;
+}
+
+.api-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.api-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.api-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.api-warning {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Status indicators */
+.status-dot.connecting {
+    background: #FF9800;
+    animation: pulse 1.5s infinite;
+}
+
+.status-dot.error {
+    background: #f44336;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.offline {
+    background: #9e9e9e;
+}
+
+/* Chat actions */
+.input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.action-btn {
+    padding: 8px 15px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #555;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: #e0e0e0;
+    border-color: #c0c0c0;
+}
+
+.model-selector select {
+    padding: 8px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    background: white;
+    font-size: 0.9rem;
+    color: #555;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.model-selector select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Local knowledge base */
+.local-kb {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin: 30px 0;
+    border: 1px solid #eee;
+}
+
+.local-kb h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kb-topics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.kb-topic {
+    padding: 20px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s;
+}
+
+.kb-topic:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
+    transform: translateY(-3px);
+}
+
+.kb-topic i {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+/* Textarea styling */
+textarea#ai-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #eee;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: none;
+    max-height: 120px;
+    transition: border 0.3s;
+    line-height: 1.5;
+}
+
+textarea#ai-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Emoji styling */
+.emoji {
+    font-size: 1.2em;
+    margin: 0 2px;
+}
+
+/* Typing animation */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .api-options {
+        flex-direction: column;
+    }
+    
+    .api-option {
+        min-width: 100%;
+    }
+    
+    .api-key-actions {
+        flex-direction: column;
+    }
+    
+    .input-actions {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .model-selector select {
+        width: 100%;
+    }
+    
+    .kb-topics {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .api-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .collapse-btn {
+        align-self: center;
+    }
+}
