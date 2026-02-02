@@ -1,49 +1,82 @@
-// Main Application Controller
-class StudyZenApp {
-    constructor() {
-        this.currentPage = 'landing';
-        this.init();
+// Wait for DOM to fully load
+document.addEventListener('DOMContentLoaded', function() {
+    // Main Application Controller
+    class StudyZenApp {
+        constructor() {
+            this.currentPage = 'landing';
+            this.init();
+        }
+
+        init() {
+            // Hide loading screen after 1 second (reduced from 2 seconds)
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                const app = document.getElementById('app');
+                
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+                if (app) {
+                    app.classList.remove('hidden');
+                }
+                
+                this.loadPage();
+            }, 1000);
+
+            // Setup theme toggle button - BUT ONLY AFTER IT EXISTS
+            setTimeout(() => {
+                const themeToggle = document.getElementById('theme-toggle');
+                const closeModal = document.querySelector('.close-modal');
+                const themeModal = document.getElementById('theme-modal');
+                
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', () => {
+                        themeManager.showThemeSelector();
+                    });
+                }
+                
+                if (closeModal) {
+                    closeModal.addEventListener('click', () => {
+                        if (themeModal) {
+                            themeModal.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                if (themeModal) {
+                    themeModal.addEventListener('click', (e) => {
+                        if (e.target === e.currentTarget) {
+                            e.currentTarget.classList.add('hidden');
+                        }
+                    });
+                }
+            }, 1500);
+
+            // Handle keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + T for theme selector
+                if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                    e.preventDefault();
+                    themeManager.showThemeSelector();
+                }
+                
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    const themeModal = document.getElementById('theme-modal');
+                    if (themeModal) {
+                        themeModal.classList.add('hidden');
+                    }
+                }
+            });
+        }
+        
+        // ... REST OF YOUR EXISTING CODE STAYS THE SAME ...
+        // All your other methods (loadPage, loadLandingPage, etc.) remain unchanged
+        // Just make sure they're inside the StudyZenApp class
+        
     }
 
-    init() {
-        // Hide loading screen after 2 seconds
-        setTimeout(() => {
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            this.loadPage();
-        }, 2000);
 
-        // Setup theme toggle button
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            themeManager.showThemeSelector();
-        });
-
-        // Setup modal close button
-        document.querySelector('.close-modal').addEventListener('click', () => {
-            document.getElementById('theme-modal').classList.add('hidden');
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('theme-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                e.currentTarget.classList.add('hidden');
-            }
-        });
-
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + T for theme selector
-            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
-                e.preventDefault();
-                themeManager.showThemeSelector();
-            }
-            
-            // Escape to close modals
-            if (e.key === 'Escape') {
-                document.getElementById('theme-modal').classList.add('hidden');
-            }
-        });
-    }
 
     loadPage(page = null) {
         if (page) this.currentPage = page;
@@ -2174,5 +2207,9 @@ clearTodaySessions(username) {
     showNotification('Today\'s sessions cleared', 'info');
 }
 
-// Start the application
-const app = new StudyZenApp();
+    // Start the application only after everything is ready
+    setTimeout(() => {
+        const app = new StudyZenApp();
+        window.studyZenApp = app; // Make it accessible for debugging
+    }, 500);
+});
