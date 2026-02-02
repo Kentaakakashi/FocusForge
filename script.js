@@ -1433,5 +1433,228 @@ class StudyZenApp {
     }
 }
 
+// Add these methods AFTER the loadOverview method in your StudyZenApp class
+
+loadPomodoro(container) {
+    container.innerHTML = `
+        <div class="pomodoro-container">
+            <div class="pomodoro-header">
+                <h2><i class="fas fa-clock"></i> Pomodoro Timer</h2>
+                <p>Study for 25 minutes, break for 5 minutes</p>
+            </div>
+            
+            <div class="timer-display">
+                <div class="time-circle">
+                    <svg class="progress-ring" width="300" height="300">
+                        <circle class="progress-ring-circle" stroke="#667eea" stroke-width="10" fill="transparent" r="130" cx="150" cy="150"/>
+                    </svg>
+                    <div class="time-text">
+                        <span id="pomo-minutes">25</span>
+                        <span class="time-colon">:</span>
+                        <span id="pomo-seconds">00</span>
+                    </div>
+                </div>
+                <div class="timer-mode">
+                    <span class="mode-badge" id="current-mode">Focus Time</span>
+                </div>
+            </div>
+            
+            <div class="timer-controls">
+                <button class="control-btn start-btn" id="pomo-start">
+                    <i class="fas fa-play"></i> Start
+                </button>
+                <button class="control-btn pause-btn" id="pomo-pause">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="control-btn reset-btn" id="pomo-reset">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button class="control-btn skip-btn" id="pomo-skip">
+                    <i class="fas fa-forward"></i> Skip
+                </button>
+            </div>
+            
+            <div class="pomodoro-settings">
+                <h3><i class="fas fa-cog"></i> Customize Intervals</h3>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="work-time">Work Time (minutes)</label>
+                        <input type="number" id="work-time" min="1" max="60" value="25">
+                    </div>
+                    <div class="setting-item">
+                        <label for="break-time">Short Break (minutes)</label>
+                        <input type="number" id="break-time" min="1" max="30" value="5">
+                    </div>
+                    <div class="setting-item">
+                        <label for="long-break-time">Long Break (minutes)</label>
+                        <input type="number" id="long-break-time" min="1" max="60" value="15">
+                    </div>
+                    <div class="setting-item">
+                        <label for="sessions-before-long">Sessions before long break</label>
+                        <input type="number" id="sessions-before-long" min="1" max="10" value="4">
+                    </div>
+                </div>
+                <button class="save-settings-btn" id="save-settings">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+            
+            <div class="pomodoro-stats">
+                <h3><i class="fas fa-chart-bar"></i> Session Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">Today's Sessions</span>
+                        <span class="stat-value" id="today-sessions">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Focus Time Today</span>
+                        <span class="stat-value" id="focus-today">0m</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Current Session</span>
+                        <span class="stat-value" id="current-session">1/4</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Focus Time</span>
+                        <span class="stat-value" id="total-focus">0h</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pomodoro-tips">
+                <h3><i class="fas fa-lightbulb"></i> Tips for Effective Pomodoro</h3>
+                <ul>
+                    <li>Choose a single task for each session</li>
+                    <li>Turn off notifications during focus time</li>
+                    <li>During breaks, step away from your desk</li>
+                    <li>Use the long break to recharge completely</li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    // Add Pomodoro styles
+    this.addPomodoroStyles();
+    
+    // Initialize Pomodoro timer
+    this.initPomodoroTimer();
+}
+
+loadStopwatch(container) {
+    container.innerHTML = `
+        <div class="stopwatch-container">
+            <div class="stopwatch-header">
+                <h2><i class="fas fa-stopwatch"></i> Study Stopwatch</h2>
+                <p>Track your study sessions precisely</p>
+            </div>
+            
+            <div class="stopwatch-display">
+                <div class="time-display-large">
+                    <span id="sw-hours">00</span>
+                    <span class="time-colon">:</span>
+                    <span id="sw-minutes">00</span>
+                    <span class="time-colon">:</span>
+                    <span id="sw-seconds">00</span>
+                </div>
+                <div class="milliseconds">
+                    <span id="sw-milliseconds">00</span>
+                </div>
+            </div>
+            
+            <div class="stopwatch-controls">
+                <button class="sw-btn start-sw-btn" id="sw-start">
+                    <i class="fas fa-play"></i> Start Study
+                </button>
+                <button class="sw-btn pause-sw-btn" id="sw-pause" disabled>
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="sw-btn lap-sw-btn" id="sw-lap" disabled>
+                    <i class="fas fa-flag"></i> Mark Session
+                </button>
+                <button class="sw-btn reset-sw-btn" id="sw-reset">
+                    <i class="fas fa-stop"></i> End Study
+                </button>
+            </div>
+            
+            <div class="subject-selector">
+                <h3><i class="fas fa-book"></i> Select Subject</h3>
+                <div class="subject-buttons">
+                    <button class="subject-btn" data-subject="Math">Math</button>
+                    <button class="subject-btn" data-subject="Science">Science</button>
+                    <button class="subject-btn" data-subject="History">History</button>
+                    <button class="subject-btn" data-subject="English">English</button>
+                    <button class="subject-btn" data-subject="Programming">Programming</button>
+                    <button class="subject-btn" data-subject="Other">Other</button>
+                </div>
+                <div class="custom-subject">
+                    <input type="text" id="custom-subject" placeholder="Or enter custom subject...">
+                    <button id="add-custom-subject">Add</button>
+                </div>
+                <div class="current-subject">
+                    Currently studying: <span id="current-subject-text">General</span>
+                </div>
+            </div>
+            
+            <div class="session-records">
+                <div class="records-header">
+                    <h3><i class="fas fa-history"></i> Today's Study Sessions</h3>
+                    <button class="clear-sessions-btn" id="clear-sessions">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                <div class="sessions-list" id="sessions-list">
+                    <!-- Sessions will be added here -->
+                    <div class="no-sessions">No study sessions recorded yet.</div>
+                </div>
+                <div class="today-summary">
+                    <h4><i class="fas fa-chart-pie"></i> Today's Summary</h4>
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <span class="summary-label">Total Time</span>
+                            <span class="summary-value" id="total-today">0h 0m</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Sessions</span>
+                            <span class="summary-value" id="session-count">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Longest Session</span>
+                            <span class="summary-value" id="longest-session">0m</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Focus Score</span>
+                            <span class="summary-value" id="focus-score">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="study-goals">
+                <h3><i class="fas fa-bullseye"></i> Daily Study Goal</h3>
+                <div class="goal-progress">
+                    <div class="goal-text">
+                        <span id="goal-progress-text">0/120 minutes</span>
+                        <span id="goal-percentage">0%</span>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" id="goal-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="goal-controls">
+                        <input type="number" id="daily-goal" min="15" max="480" value="120">
+                        <span>minutes</span>
+                        <button id="set-goal">Set Goal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add Stopwatch styles
+    this.addStopwatchStyles();
+    
+    // Initialize Stopwatch
+    this.initStopwatch();
+}
+
 // Start the application
 const app = new StudyZenApp();
