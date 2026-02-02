@@ -314,17 +314,24 @@ time-text {
     color: white;
 }
 
-.time-display-large {
+time-display-large {
     font-size: 5rem;
     font-weight: bold;
     font-family: 'Courier New', monospace;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 .time-display-large span {
     display: inline-block;
-    min-width: 80px;
+    width: 100px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
 }
+
 
 .milliseconds {
     font-size: 2rem;
