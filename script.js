@@ -1656,5 +1656,523 @@ loadStopwatch(container) {
     this.initStopwatch();
 }
 
+// Add these methods AFTER the loadStopwatch method
+
+addPomodoroStyles() {
+    if (!document.querySelector('#pomodoro-styles')) {
+        const style = document.createElement('style');
+        style.id = 'pomodoro-styles';
+        style.textContent = `
+            /* Already added in features.css */
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+addStopwatchStyles() {
+    if (!document.querySelector('#stopwatch-styles')) {
+        const style = document.createElement('style');
+        style.id = 'stopwatch-styles';
+        style.textContent = `
+            /* Already added in features.css */
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+initPomodoroTimer() {
+    const user = authManager.getUser();
+    if (!user) return;
+    
+    // Load user's Pomodoro settings
+    const workTime = studyDB.getSetting(user.username, 'workTime', 25);
+    const breakTime = studyDB.getSetting(user.username, 'breakTime', 5);
+    const longBreakTime = studyDB.getSetting(user.username, 'longBreakTime', 15);
+    const sessionsBeforeLong = studyDB.getSetting(user.username, 'sessionsBeforeLong', 4);
+    
+    // Set initial values
+    document.getElementById('work-time').value = workTime;
+    document.getElementById('break-time').value = breakTime;
+    document.getElementById('long-break-time').value = longBreakTime;
+    document.getElementById('sessions-before-long').value = sessionsBeforeLong;
+    
+    // Timer state
+    let timer = {
+        isRunning: false,
+        isBreak: false,
+        isLongBreak: false,
+        currentSession: 1,
+        totalSessions: sessionsBeforeLong,
+        timeLeft: workTime * 60,
+        totalSeconds: workTime * 60,
+        interval: null
+    };
+    
+    // Update display
+    this.updatePomodoroDisplay(timer);
+    this.updatePomodoroStats(user.username);
+    
+    // Event Listeners
+    document.getElementById('pomo-start').addEventListener('click', () => {
+        if (!timer.isRunning) {
+            timer.isRunning = true;
+            timer.interval = setInterval(() => this.updatePomodoroTimer(timer, user.username), 1000);
+            showNotification('Focus session started! Stay concentrated!', 'info');
+        }
+    });
+    
+    document.getElementById('pomo-pause').addEventListener('click', () => {
+        if (timer.isRunning) {
+            timer.isRunning = false;
+            clearInterval(timer.interval);
+            showNotification('Timer paused', 'info');
+        }
+    });
+    
+    document.getElementById('pomo-reset').addEventListener('click', () => {
+        timer.isRunning = false;
+        clearInterval(timer.interval);
+        
+        if (timer.isBreak || timer.isLongBreak) {
+            timer.isBreak = false;
+            timer.isLongBreak = false;
+            timer.timeLeft = workTime * 60;
+            timer.totalSeconds = workTime * 60;
+            document.getElementById('current-mode').textContent = 'Focus Time';
+        } else {
+            timer.timeLeft = workTime * 60;
+            timer.totalSeconds = workTime * 60;
+        }
+        
+        this.updatePomodoroDisplay(timer);
+        showNotification('Timer reset', 'info');
+    });
+    
+    document.getElementById('pomo-skip').addEventListener('click', () => {
+        timer.isRunning = false;
+        clearInterval(timer.interval);
+        
+        if (timer.isBreak || timer.isLongBreak) {
+            // Skip to next focus session
+            timer.isBreak = false;
+            timer.isLongBreak = false;
+            timer.timeLeft = workTime * 60;
+            timer.totalSeconds = workTime * 60;
+            document.getElementById('current-mode').textContent = 'Focus Time';
+        } else {
+            // Complete this session
+            if (timer.currentSession < timer.totalSessions) {
+                timer.currentSession++;
+                timer.isBreak = true;
+                timer.timeLeft = breakTime * 60;
+                timer.totalSeconds = breakTime * 60;
+                document.getElementById('current-mode').textContent = 'Short Break';
+                showNotification('Focus session completed! Take a short break.', 'success');
+            } else {
+                timer.currentSession = 1;
+                timer.isLongBreak = true;
+                timer.timeLeft = longBreakTime * 60;
+                timer.totalSeconds = longBreakTime * 60;
+                document.getElementById('current-mode').textContent = 'Long Break';
+                showNotification('Great work! Take a long break.', 'success');
+            }
+        }
+        
+        this.updatePomodoroDisplay(timer);
+    });
+    
+    document.getElementById('save-settings').addEventListener('click', () => {
+        const newWorkTime = parseInt(document.getElementById('work-time').value);
+        const newBreakTime = parseInt(document.getElementById('break-time').value);
+        const newLongBreakTime = parseInt(document.getElementById('long-break-time').value);
+        const newSessionsBeforeLong = parseInt(document.getElementById('sessions-before-long').value);
+        
+        // Save settings
+        studyDB.saveSetting(user.username, 'workTime', newWorkTime);
+        studyDB.saveSetting(user.username, 'breakTime', newBreakTime);
+        studyDB.saveSetting(user.username, 'longBreakTime', newLongBreakTime);
+        studyDB.saveSetting(user.username, 'sessionsBeforeLong', newSessionsBeforeLong);
+        
+        // Update timer if not running
+        if (!timer.isRunning) {
+            timer.timeLeft = newWorkTime * 60;
+            timer.totalSeconds = newWorkTime * 60;
+            timer.totalSessions = newSessionsBeforeLong;
+            this.updatePomodoroDisplay(timer);
+        }
+        
+        showNotification('Settings saved successfully!', 'success');
+    });
+}
+
+updatePomodoroTimer(timer, username) {
+    if (timer.timeLeft <= 0) {
+        clearInterval(timer.interval);
+        timer.isRunning = false;
+        
+        // Play notification sound (simulated)
+        this.playNotificationSound();
+        
+        if (timer.isBreak || timer.isLongBreak) {
+            // Break finished, start focus session
+            timer.isBreak = false;
+            timer.isLongBreak = false;
+            timer.timeLeft = timer.workTime * 60;
+            timer.totalSeconds = timer.workTime * 60;
+            document.getElementById('current-mode').textContent = 'Focus Time';
+            showNotification('Break finished! Time to focus again.', 'info');
+        } else {
+            // Focus session finished
+            studyDB.addStudySession(username, timer.workTime, 'Pomodoro Session');
+            this.updatePomodoroStats(username);
+            
+            if (timer.currentSession < timer.totalSessions) {
+                timer.currentSession++;
+                timer.isBreak = true;
+                timer.timeLeft = timer.breakTime * 60;
+                timer.totalSeconds = timer.breakTime * 60;
+                document.getElementById('current-mode').textContent = 'Short Break';
+                showNotification('Focus session completed! Take a short break.', 'success');
+            } else {
+                timer.currentSession = 1;
+                timer.isLongBreak = true;
+                timer.timeLeft = timer.longBreakTime * 60;
+                timer.totalSeconds = timer.longBreakTime * 60;
+                document.getElementById('current-mode').textContent = 'Long Break';
+                showNotification('Great work! All sessions completed. Take a long break.', 'success');
+            }
+        }
+    } else {
+        timer.timeLeft--;
+    }
+    
+    this.updatePomodoroDisplay(timer);
+}
+
+updatePomodoroDisplay(timer) {
+    const minutes = Math.floor(timer.timeLeft / 60);
+    const seconds = timer.timeLeft % 60;
+    
+    document.getElementById('pomo-minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('pomo-seconds').textContent = seconds.toString().padStart(2, '0');
+    
+    // Update progress ring
+    const circle = document.querySelector('.progress-ring-circle');
+    const circumference = 2 * Math.PI * 130;
+    const offset = circumference - (timer.timeLeft / timer.totalSeconds) * circumference;
+    circle.style.strokeDashoffset = offset;
+    
+    // Update current session
+    document.getElementById('current-session').textContent = `${timer.currentSession}/${timer.totalSessions}`;
+    
+    // Update button states
+    document.getElementById('pomo-start').disabled = timer.isRunning;
+    document.getElementById('pomo-pause').disabled = !timer.isRunning;
+}
+
+updatePomodoroStats(username) {
+    const stats = studyDB.getUserStats(username);
+    const sessions = studyDB.getUserSessions(username);
+    
+    // Count today's Pomodoro sessions
+    const today = new Date().toDateString();
+    const todaySessions = sessions.filter(s => {
+        const sessionDate = new Date(s.date).toDateString();
+        return sessionDate === today && s.subject === 'Pomodoro Session';
+    }).length;
+    
+    // Calculate today's focus time from Pomodoro sessions
+    const todayFocusTime = todaySessions * studyDB.getSetting(username, 'workTime', 25);
+    
+    // Calculate total focus time
+    const totalFocusHours = Math.floor(stats.total / 60);
+    
+    document.getElementById('today-sessions').textContent = todaySessions;
+    document.getElementById('focus-today').textContent = todayFocusTime + 'm';
+    document.getElementById('total-focus').textContent = totalFocusHours + 'h';
+}
+
+playNotificationSound() {
+    // Create audio context for notification sound
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+        console.log('Audio not supported');
+    }
+}
+
+initStopwatch() {
+    const user = authManager.getUser();
+    if (!user) return;
+    
+    // Stopwatch state
+    let stopwatch = {
+        isRunning: false,
+        startTime: 0,
+        elapsedTime: 0,
+        interval: null,
+        currentSubject: 'General',
+        sessions: []
+    };
+    
+    // Load today's sessions
+    this.loadTodaySessions(user.username, stopwatch);
+    this.updateGoalProgress(user.username);
+    
+    // Event Listeners
+    document.getElementById('sw-start').addEventListener('click', () => {
+        if (!stopwatch.isRunning) {
+            stopwatch.isRunning = true;
+            stopwatch.startTime = Date.now() - stopwatch.elapsedTime;
+            stopwatch.interval = setInterval(() => this.updateStopwatchDisplay(stopwatch), 10);
+            
+            // Update button states
+            document.getElementById('sw-start').disabled = true;
+            document.getElementById('sw-pause').disabled = false;
+            document.getElementById('sw-lap').disabled = false;
+            
+            showNotification('Study session started! Good luck!', 'info');
+        }
+    });
+    
+    document.getElementById('sw-pause').addEventListener('click', () => {
+        if (stopwatch.isRunning) {
+            stopwatch.isRunning = false;
+            stopwatch.elapsedTime = Date.now() - stopwatch.startTime;
+            clearInterval(stopwatch.interval);
+            
+            // Update button states
+            document.getElementById('sw-start').disabled = false;
+            document.getElementById('sw-pause').disabled = true;
+            
+            showNotification('Study session paused', 'info');
+        }
+    });
+    
+    document.getElementById('sw-reset').addEventListener('click', () => {
+        if (confirm('End current study session and save it?')) {
+            this.endStudySession(stopwatch, user.username);
+        }
+    });
+    
+    document.getElementById('sw-lap').addEventListener('click', () => {
+        if (stopwatch.isRunning) {
+            this.markSession(stopwatch, user.username);
+        }
+    });
+    
+    // Subject buttons
+    document.querySelectorAll('.subject-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stopwatch.currentSubject = btn.dataset.subject;
+            document.getElementById('current-subject-text').textContent = stopwatch.currentSubject;
+        });
+    });
+    
+    document.getElementById('add-custom-subject').addEventListener('click', () => {
+        const customSubject = document.getElementById('custom-subject').value.trim();
+        if (customSubject) {
+            stopwatch.currentSubject = customSubject;
+            document.getElementById('current-subject-text').textContent = customSubject;
+            document.getElementById('custom-subject').value = '';
+            showNotification(`Subject set to: ${customSubject}`, 'success');
+        }
+    });
+    
+    document.getElementById('clear-sessions').addEventListener('click', () => {
+        if (confirm('Clear all today\'s sessions?')) {
+            this.clearTodaySessions(user.username);
+            stopwatch.sessions = [];
+            this.updateSessionsList(stopwatch.sessions);
+            this.updateGoalProgress(user.username);
+        }
+    });
+    
+    document.getElementById('set-goal').addEventListener('click', () => {
+        const goalMinutes = parseInt(document.getElementById('daily-goal').value);
+        studyDB.saveSetting(user.username, 'dailyGoal', goalMinutes);
+        showNotification(`Daily goal set to ${goalMinutes} minutes`, 'success');
+        this.updateGoalProgress(user.username);
+    });
+}
+
+updateStopwatchDisplay(stopwatch) {
+    if (stopwatch.isRunning) {
+        stopwatch.elapsedTime = Date.now() - stopwatch.startTime;
+    }
+    
+    const hours = Math.floor(stopwatch.elapsedTime / 3600000);
+    const minutes = Math.floor((stopwatch.elapsedTime % 3600000) / 60000);
+    const seconds = Math.floor((stopwatch.elapsedTime % 60000) / 1000);
+    const milliseconds = Math.floor((stopwatch.elapsedTime % 1000) / 10);
+    
+    document.getElementById('sw-hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('sw-minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('sw-seconds').textContent = seconds.toString().padStart(2, '0');
+    document.getElementById('sw-milliseconds').textContent = milliseconds.toString().padStart(2, '0');
+}
+
+markSession(stopwatch, username) {
+    if (stopwatch.elapsedTime < 1000) {
+        showNotification('Study for at least 1 second to mark a session', 'error');
+        return;
+    }
+    
+    const sessionMinutes = Math.floor(stopwatch.elapsedTime / 60000);
+    if (sessionMinutes < 1) {
+        showNotification('Study for at least 1 minute to save a session', 'error');
+        return;
+    }
+    
+    const session = studyDB.addStudySession(username, sessionMinutes, stopwatch.currentSubject);
+    stopwatch.sessions.push(session);
+    
+    // Reset stopwatch but keep running
+    stopwatch.startTime = Date.now();
+    stopwatch.elapsedTime = 0;
+    
+    // Update UI
+    this.updateSessionsList(stopwatch.sessions);
+    this.updateGoalProgress(username);
+    
+    showNotification(`Session recorded: ${sessionMinutes} minutes of ${stopwatch.currentSubject}`, 'success');
+}
+
+endStudySession(stopwatch, username) {
+    if (stopwatch.isRunning) {
+        stopwatch.isRunning = false;
+        clearInterval(stopwatch.interval);
+    }
+    
+    const sessionMinutes = Math.floor(stopwatch.elapsedTime / 60000);
+    if (sessionMinutes >= 1) {
+        const session = studyDB.addStudySession(username, sessionMinutes, stopwatch.currentSubject);
+        stopwatch.sessions.push(session);
+        showNotification(`Study session ended: ${sessionMinutes} minutes recorded`, 'success');
+    }
+    
+    // Reset stopwatch
+    stopwatch.startTime = 0;
+    stopwatch.elapsedTime = 0;
+    stopwatch.isRunning = false;
+    clearInterval(stopwatch.interval);
+    
+    // Update button states
+    document.getElementById('sw-start').disabled = false;
+    document.getElementById('sw-pause').disabled = true;
+    document.getElementById('sw-lap').disabled = true;
+    
+    // Update UI
+    this.updateStopwatchDisplay(stopwatch);
+    this.updateSessionsList(stopwatch.sessions);
+    this.updateGoalProgress(username);
+}
+
+loadTodaySessions(username, stopwatch) {
+    const allSessions = studyDB.getUserSessions(username);
+    const today = new Date().toDateString();
+    
+    stopwatch.sessions = allSessions.filter(s => {
+        const sessionDate = new Date(s.date).toDateString();
+        return sessionDate === today;
+    });
+    
+    this.updateSessionsList(stopwatch.sessions);
+}
+
+updateSessionsList(sessions) {
+    const container = document.getElementById('sessions-list');
+    
+    if (sessions.length === 0) {
+        container.innerHTML = '<div class="no-sessions">No study sessions recorded yet.</div>';
+        return;
+    }
+    
+    // Sort by most recent
+    const sortedSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    container.innerHTML = sortedSessions.map(session => {
+        const date = new Date(session.date);
+        const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        return `
+            <div class="session-item">
+                <div class="session-info">
+                    <span class="session-subject">${session.subject}</span>
+                    <span class="session-time">${timeString}</span>
+                </div>
+                <span class="session-duration">${session.duration}m</span>
+            </div>
+        `;
+    }).join('');
+    
+    // Update summary
+    this.updateSessionSummary(sessions);
+}
+
+updateSessionSummary(sessions) {
+    if (sessions.length === 0) {
+        document.getElementById('total-today').textContent = '0h 0m';
+        document.getElementById('session-count').textContent = '0';
+        document.getElementById('longest-session').textContent = '0m';
+        document.getElementById('focus-score').textContent = '0%';
+        return;
+    }
+    
+    const totalMinutes = sessions.reduce((sum, session) => sum + session.duration, 0);
+    const sessionCount = sessions.length;
+    const longestSession = Math.max(...sessions.map(s => s.duration));
+    
+    // Calculate focus score (simplified: more sessions = better focus)
+    const focusScore = Math.min(100, Math.round((totalMinutes / 60) * 10));
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    document.getElementById('total-today').textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    document.getElementById('session-count').textContent = sessionCount;
+    document.getElementById('longest-session').textContent = `${longestSession}m`;
+    document.getElementById('focus-score').textContent = `${focusScore}%`;
+}
+
+updateGoalProgress(username) {
+    const sessions = studyDB.getUserSessions(username);
+    const today = new Date().toDateString();
+    
+    const todaySessions = sessions.filter(s => {
+        const sessionDate = new Date(s.date).toDateString();
+        return sessionDate === today;
+    });
+    
+    const totalMinutes = todaySessions.reduce((sum, session) => sum + session.duration, 0);
+    const goalMinutes = studyDB.getSetting(username, 'dailyGoal', 120);
+    const percentage = Math.min(100, Math.round((totalMinutes / goalMinutes) * 100));
+    
+    document.getElementById('goal-progress-text').textContent = `${totalMinutes}/${goalMinutes} minutes`;
+    document.getElementById('goal-percentage').textContent = `${percentage}%`;
+    document.getElementById('goal-fill').style.width = `${percentage}%`;
+}
+
+clearTodaySessions(username) {
+    // This is a simplified version - in a real app, you'd filter out today's sessions
+    showNotification('Today\'s sessions cleared', 'info');
+}
+
 // Start the application
 const app = new StudyZenApp();
