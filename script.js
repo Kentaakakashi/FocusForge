@@ -1866,822 +1866,854 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-loadChatbot(container) {
-    console.log("Loading AI Assistant with REAL API");
-    
-    container.innerHTML = `
-        <div class="ai-assistant-container">
-            <div class="ai-header">
-                <h2><i class="fas fa-robot"></i> StudyZen AI Assistant</h2>
-                <p>Powered by real AI - Ask anything about studying!</p>
-                <div class="ai-status">
-                    <span class="status-dot online" id="ai-status"></span>
-                    <span id="ai-status-text">Connecting to AI...</span>
-                </div>
-            </div>
+        // ===== AI ASSISTANT WITH EMBEDDED API KEY =====
+        loadChatbot(container) {
+            console.log("Loading AI Assistant");
             
-            <!-- API Setup Instructions -->
-            <div class="api-setup-card" id="api-setup">
-                <div class="api-header">
-                    <h3><i class="fas fa-key"></i> Setup AI API (FREE)</h3>
-                    <button class="collapse-btn" id="toggle-api-instructions">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-                <div class="api-content" id="api-instructions">
-                    <p>To use the real AI chatbot, get a FREE API key:</p>
+            // EMBEDDED API KEY - Replace with your actual key
+            const EMBEDDED_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // <-- YOU PUT YOUR KEY HERE
+            
+            container.innerHTML = `
+                <div class="ai-assistant-container">
+                    <div class="ai-header">
+                        <h2><i class="fas fa-robot"></i> StudyZen AI Assistant</h2>
+                        <p>Powered by real AI - Ask anything about studying!</p>
+                        <div class="ai-status">
+                            <span class="status-dot online" id="ai-status"></span>
+                            <span id="ai-status-text">AI is ready! Ask your question.</span>
+                        </div>
+                    </div>
                     
-                    <div class="api-options">
-                        <div class="api-option active" data-api="gemini">
-                            <h4><i class="fab fa-google"></i> Google Gemini (Recommended)</h4>
-                            <ol>
-                                <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
-                                <li>Click "Get API Key" → "Create API Key"</li>
-                                <li>Copy your API key</li>
-                                <li>Paste it below (stored locally in your browser)</li>
-                            </ol>
+                    <!-- Chat Interface -->
+                    <div class="ai-chat-container" id="chat-container">
+                        <!-- Chat Messages -->
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai-message">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-text">
+                                        <strong>Hello! I'm your StudyZen AI Assistant. 🎓</strong><br><br>
+                                        I can help you with:
+                                        <ul>
+                                            <li>Study techniques and learning strategies</li>
+                                            <li>Homework help and explanations</li>
+                                            <li>Time management and productivity</li>
+                                            <li>Exam preparation and test anxiety</li>
+                                            <li>Subject-specific questions</li>
+                                        </ul>
+                                        What would you like to learn about today?
+                                    </div>
+                                    <div class="message-time">Just now</div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="api-option" data-api="huggingface">
-                            <h4><i class="fas fa-brain"></i> Hugging Face (Alternative)</h4>
-                            <ol>
-                                <li>Go to <a href="https://huggingface.co/settings/tokens" target="_blank">Hugging Face Tokens</a></li>
-                                <li>Create a new token</li>
-                                <li>Copy the token</li>
-                                <li>Paste it below</li>
-                            </ol>
+                        <!-- Quick Questions -->
+                        <div class="quick-questions">
+                            <h4>Quick Study Questions:</h4>
+                            <div class="question-chips">
+                                <button class="question-chip" data-question="Explain the Pythagorean theorem">Pythagorean theorem</button>
+                                <button class="question-chip" data-question="What is photosynthesis?">Photosynthesis</button>
+                                <button class="question-chip" data-question="How to study effectively for exams?">Exam study tips</button>
+                                <button class="question-chip" data-question="What are Newton's laws of motion?">Newton's laws</button>
+                                <button class="question-chip" data-question="How to improve my essay writing?">Essay writing</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Area -->
+                        <div class="chat-input-area">
+                            <div class="input-container">
+                                <textarea id="ai-input" 
+                                          placeholder="Ask me anything about studying, homework, or learning..."
+                                          rows="1"
+                                          autocomplete="off"></textarea>
+                                <button id="send-ai-message">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="input-actions">
+                                <button class="action-btn" id="clear-chat">
+                                    <i class="fas fa-trash"></i> Clear Chat
+                                </button>
+                                <div class="ai-info">
+                                    <i class="fas fa-info-circle"></i> Powered by Google Gemini AI
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="api-input-section">
-                        <div class="input-group">
-                            <label for="api-key-input">
-                                <i class="fas fa-key"></i> Enter your API Key:
-                            </label>
-                            <input type="password" id="api-key-input" placeholder="Paste your API key here">
-                            <div class="api-key-actions">
-                                <button id="save-api-key" class="btn-primary">
-                                    <i class="fas fa-save"></i> Save Key
-                                </button>
-                                <button id="test-api-key" class="btn-secondary">
-                                    <i class="fas fa-test"></i> Test Connection
-                                </button>
+                    <!-- Study Tips -->
+                    <div class="study-tips">
+                        <h3><i class="fas fa-lightbulb"></i> Pro Study Tips</h3>
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <i class="fas fa-brain"></i>
+                                <h4>Active Recall</h4>
+                                <p>Test yourself without looking at notes to strengthen memory.</p>
+                            </div>
+                            <div class="tip-card">
+                                <i class="fas fa-clock"></i>
+                                <h4>Pomodoro</h4>
+                                <p>25 minutes focused study, 5 minutes break for optimal retention.</p>
+                            </div>
+                            <div class="tip-card">
+                                <i class="fas fa-book"></i>
+                                <h4>Spaced Repetition</h4>
+                                <p>Review material at increasing intervals over time.</p>
                             </div>
                         </div>
-                        <div class="api-test-result" id="api-test-result"></div>
                     </div>
                     
-                    <div class="api-warning">
-                        <p><i class="fas fa-shield-alt"></i> Your API key is stored locally in your browser and never sent to our servers.</p>
+                    <div class="ai-disclaimer">
+                        <p><i class="fas fa-info-circle"></i> This AI assistant provides study guidance. Always verify important information with teachers or textbooks.</p>
                     </div>
                 </div>
-            </div>
+            `;
+
+            // Add AI Assistant styles
+            this.addAIAssistantStyles();
             
-            <!-- Chat Interface (hidden until API is set) -->
-            <div class="ai-chat-container" id="chat-container" style="display: none;">
-                <!-- Chat Messages -->
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message ai-message">
-                        <div class="message-avatar">
-                            <i class="fas fa-robot"></i>
+            // Initialize AI Assistant WITH EMBEDDED API KEY
+            this.initAIAssistant(EMBEDDED_API_KEY);
+        }
+
+        addAIAssistantStyles() {
+            if (!document.querySelector('#ai-styles')) {
+                const style = document.createElement('style');
+                style.id = 'ai-styles';
+                style.textContent = `
+                    /* ===== AI ASSISTANT STYLES ===== */
+                    .ai-assistant-container {
+                        padding: 20px;
+                    }
+                    
+                    .ai-header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid #f0f0f0;
+                    }
+                    
+                    .ai-header h2 {
+                        font-size: 2.2rem;
+                        color: #333;
+                        margin-bottom: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 15px;
+                    }
+                    
+                    .ai-header p {
+                        color: #666;
+                        font-size: 1.1rem;
+                        margin-bottom: 15px;
+                    }
+                    
+                    .ai-status {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        color: #4CAF50;
+                        font-weight: 500;
+                    }
+                    
+                    .status-dot {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        display: inline-block;
+                    }
+                    
+                    .status-dot.online {
+                        background: #4CAF50;
+                        animation: pulse 2s infinite;
+                    }
+                    
+                    .ai-chat-container {
+                        background: white;
+                        border-radius: 15px;
+                        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+                        margin-bottom: 30px;
+                        overflow: hidden;
+                    }
+                    
+                    .chat-messages {
+                        height: 400px;
+                        overflow-y: auto;
+                        padding: 25px;
+                        background: #f8f9fa;
+                        border-bottom: 1px solid #eee;
+                    }
+                    
+                    .message {
+                        display: flex;
+                        gap: 15px;
+                        margin-bottom: 25px;
+                        animation: fadeIn 0.3s ease;
+                    }
+                    
+                    .user-message {
+                        flex-direction: row-reverse;
+                    }
+                    
+                    .ai-message {
+                        flex-direction: row;
+                    }
+                    
+                    .message-avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                    }
+                    
+                    .user-message .message-avatar {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                    }
+                    
+                    .ai-message .message-avatar {
+                        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+                        color: white;
+                    }
+                    
+                    .message-content {
+                        max-width: 70%;
+                        position: relative;
+                    }
+                    
+                    .user-message .message-content {
+                        align-items: flex-end;
+                        text-align: right;
+                    }
+                    
+                    .message-text {
+                        background: white;
+                        padding: 15px 20px;
+                        border-radius: 15px;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+                        line-height: 1.5;
+                        font-size: 0.95rem;
+                    }
+                    
+                    .user-message .message-text {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border-radius: 15px 15px 0 15px;
+                    }
+                    
+                    .ai-message .message-text {
+                        background: white;
+                        color: #333;
+                        border-radius: 15px 15px 15px 0;
+                        border: 1px solid #eee;
+                    }
+                    
+                    .message-time {
+                        font-size: 0.8rem;
+                        color: #999;
+                        margin-top: 5px;
+                    }
+                    
+                    .user-message .message-time {
+                        text-align: right;
+                    }
+                    
+                    .message-text ul {
+                        margin: 10px 0;
+                        padding-left: 20px;
+                    }
+                    
+                    .message-text li {
+                        margin: 5px 0;
+                    }
+                    
+                    .quick-questions {
+                        padding: 20px 25px;
+                        background: white;
+                        border-bottom: 1px solid #eee;
+                    }
+                    
+                    .quick-questions h4 {
+                        font-size: 1rem;
+                        color: #666;
+                        margin-bottom: 15px;
+                    }
+                    
+                    .question-chips {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+                    
+                    .question-chip {
+                        padding: 8px 15px;
+                        background: #f0f0f0;
+                        border: none;
+                        border-radius: 20px;
+                        font-size: 0.9rem;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        color: #555;
+                    }
+                    
+                    .question-chip:hover {
+                        background: #667eea;
+                        color: white;
+                        transform: translateY(-2px);
+                    }
+                    
+                    .chat-input-area {
+                        padding: 20px 25px;
+                        background: white;
+                    }
+                    
+                    .input-container {
+                        display: flex;
+                        gap: 10px;
+                        margin-bottom: 10px;
+                    }
+                    
+                    #ai-input {
+                        flex: 1;
+                        padding: 15px 20px;
+                        border: 2px solid #eee;
+                        border-radius: 25px;
+                        font-size: 1rem;
+                        font-family: inherit;
+                        resize: none;
+                        max-height: 120px;
+                        transition: border 0.3s;
+                        line-height: 1.5;
+                    }
+                    
+                    #ai-input:focus {
+                        outline: none;
+                        border-color: #667eea;
+                    }
+                    
+                    #send-ai-message {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 1.2rem;
+                        transition: transform 0.3s;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    
+                    #send-ai-message:hover {
+                        transform: scale(1.05);
+                    }
+                    
+                    .input-actions {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 15px;
+                    }
+                    
+                    .action-btn {
+                        padding: 8px 15px;
+                        background: #f8f9fa;
+                        border: 2px solid #e0e0e0;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 0.9rem;
+                        color: #555;
+                        transition: all 0.3s;
+                    }
+                    
+                    .action-btn:hover {
+                        background: #e0e0e0;
+                        border-color: #c0c0c0;
+                    }
+                    
+                    .ai-info {
+                        color: #666;
+                        font-size: 0.9rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    
+                    .study-tips {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 30px;
+                        border-radius: 15px;
+                        margin-bottom: 30px;
+                    }
+                    
+                    .study-tips h3 {
+                        font-size: 1.5rem;
+                        margin-bottom: 25px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        justify-content: center;
+                    }
+                    
+                    .tips-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 20px;
+                    }
+                    
+                    .tip-card {
+                        background: rgba(255,255,255,0.1);
+                        padding: 25px;
+                        border-radius: 10px;
+                        backdrop-filter: blur(10px);
+                        text-align: center;
+                        transition: transform 0.3s;
+                    }
+                    
+                    .tip-card:hover {
+                        transform: translateY(-5px);
+                    }
+                    
+                    .tip-card i {
+                        font-size: 2.5rem;
+                        margin-bottom: 15px;
+                        color: #4CAF50;
+                    }
+                    
+                    .tip-card h4 {
+                        font-size: 1.2rem;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .tip-card p {
+                        font-size: 0.9rem;
+                        opacity: 0.9;
+                        line-height: 1.5;
+                    }
+                    
+                    .ai-disclaimer {
+                        background: #fff3cd;
+                        color: #856404;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        border: 1px solid #ffeaa7;
+                        font-size: 0.9rem;
+                    }
+                    
+                    .ai-disclaimer i {
+                        margin-right: 10px;
+                    }
+                    
+                    /* Animations */
+                    @keyframes fadeIn {
+                        from {
+                            opacity: 0;
+                            transform: translateY(10px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    
+                    /* Typing indicator */
+                    .typing-indicator {
+                        display: flex;
+                        gap: 5px;
+                        padding: 10px 15px;
+                        background: white;
+                        border-radius: 15px;
+                        width: fit-content;
+                        border: 1px solid #eee;
+                    }
+                    
+                    .typing-dot {
+                        width: 8px;
+                        height: 8px;
+                        background: #667eea;
+                        border-radius: 50%;
+                        animation: typing 1.4s infinite;
+                    }
+                    
+                    .typing-dot:nth-child(2) {
+                        animation-delay: 0.2s;
+                    }
+                    
+                    .typing-dot:nth-child(3) {
+                        animation-delay: 0.4s;
+                    }
+                    
+                    @keyframes typing {
+                        0%, 60%, 100% {
+                            transform: translateY(0);
+                        }
+                        30% {
+                            transform: translateY(-10px);
+                        }
+                    }
+                    
+                    /* Responsive Design */
+                    @media (max-width: 768px) {
+                        .ai-header h2 {
+                            font-size: 1.8rem;
+                        }
+                        
+                        .chat-messages {
+                            height: 300px;
+                            padding: 15px;
+                        }
+                        
+                        .message-content {
+                            max-width: 85%;
+                        }
+                        
+                        .tips-grid {
+                            grid-template-columns: 1fr;
+                        }
+                        
+                        .question-chips {
+                            justify-content: center;
+                        }
+                        
+                        .input-actions {
+                            flex-direction: column;
+                            gap: 15px;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .message {
+                            gap: 10px;
+                        }
+                        
+                        .message-avatar {
+                            width: 35px;
+                            height: 35px;
+                            font-size: 0.9rem;
+                        }
+                        
+                        .message-content {
+                            max-width: 90%;
+                        }
+                        
+                        .input-container {
+                            flex-direction: column;
+                        }
+                        
+                        #send-ai-message {
+                            width: 100%;
+                            border-radius: 25px;
+                            height: 45px;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        initAIAssistant(apiKey) {
+            console.log("Initializing AI Assistant with embedded API key");
+            
+            const chatMessages = document.getElementById('chat-messages');
+            const aiInput = document.getElementById('ai-input');
+            const sendBtn = document.getElementById('send-ai-message');
+            const clearBtn = document.getElementById('clear-chat');
+            const questionChips = document.querySelectorAll('.question-chip');
+            
+            // Initialize chat history
+            this.chatHistory = JSON.parse(localStorage.getItem('studyzen_chat_history') || '[]');
+            
+            // Load chat history
+            if (this.chatHistory.length > 0) {
+                this.loadChatHistory();
+            }
+            
+            // Function to add message
+            const addMessage = (text, isUser = false, save = true) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+                
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${formatMessageText(text)}</div>
+                        <div class="message-time">${timeString}</div>
+                    </div>
+                `;
+                
+                if (chatMessages) {
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+                
+                // Save to history
+                if (save) {
+                    this.chatHistory.push({
+                        text: text,
+                        isUser: isUser,
+                        timestamp: now.toISOString()
+                    });
+                    
+                    // Keep only last 50 messages
+                    if (this.chatHistory.length > 50) {
+                        this.chatHistory = this.chatHistory.slice(-50);
+                    }
+                    
+                    localStorage.setItem('studyzen_chat_history', JSON.stringify(this.chatHistory));
+                }
+            };
+            
+            // Function to show typing indicator
+            const showTypingIndicator = () => {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message ai-message';
+                typingDiv.id = 'typing-indicator';
+                
+                typingDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
                         </div>
-                        <div class="message-content">
-                            <div class="message-text">
-                                <strong>Hello! I'm your StudyZen AI Assistant. 🎓</strong><br><br>
-                                I can help you with:
-                                <ul>
-                                    <li>Study techniques and learning strategies</li>
-                                    <li>Homework help and explanations</li>
-                                    <li>Time management and productivity</li>
-                                    <li>Exam preparation and test anxiety</li>
-                                    <li>Subject-specific questions</li>
-                                </ul>
-                                What would you like to learn about today?
+                    </div>
+                `;
+                
+                if (chatMessages) {
+                    chatMessages.appendChild(typingDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+                
+                return typingDiv;
+            };
+            
+            // Function to format message text
+            const formatMessageText = (text) => {
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/🎓|📚|⏰|🎯|🧠|📝|🔬|📖/g, match => `<span class="emoji">${match}</span>`);
+            };
+            
+            // Load chat history
+            this.loadChatHistory = () => {
+                if (!chatMessages || this.chatHistory.length === 0) return;
+                
+                // Clear existing messages except the first welcome
+                const welcomeMsg = chatMessages.querySelector('.message');
+                chatMessages.innerHTML = '';
+                if (welcomeMsg) {
+                    chatMessages.appendChild(welcomeMsg);
+                }
+                
+                // Load history
+                this.chatHistory.forEach(msg => {
+                    addMessage(msg.text, msg.isUser, false);
+                });
+            };
+            
+            // Clear chat history
+            const clearChatHistory = () => {
+                this.chatHistory = [];
+                localStorage.removeItem('studyzen_chat_history');
+                
+                if (chatMessages) {
+                    chatMessages.innerHTML = `
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
                             </div>
-                            <div class="message-time">Just now</div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    <strong>Chat cleared! 💫</strong><br><br>
+                                    I'm ready to help with your studies. What would you like to learn about today?
+                                </div>
+                                <div class="message-time">Just now</div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    `;
+                }
+            };
+            
+            // Function to call Gemini API
+            const callGeminiAPI = async (message) => {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `You are a helpful study assistant. Answer this study-related question: "${message}". Provide clear, educational explanations. If it's not study-related, politely redirect to study topics.`
+                                }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 1000,
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                           "I apologize, but I couldn't generate a response. Please try again.";
+                    
+                } catch (error) {
+                    console.error('Gemini API error:', error);
+                    throw error;
+                }
+            };
+            
+            // Local fallback responses
+            const getLocalAIResponse = (message) => {
+                const messageLower = message.toLowerCase();
                 
-                <!-- Quick Questions -->
-                <div class="quick-questions">
-                    <h4>Quick Study Questions:</h4>
-                    <div class="question-chips">
-                        <button class="question-chip" data-question="Explain the Pythagorean theorem">Pythagorean theorem</button>
-                        <button class="question-chip" data-question="What is photosynthesis?">Photosynthesis</button>
-                        <button class="question-chip" data-question="How to study effectively for exams?">Exam study tips</button>
-                        <button class="question-chip" data-question="What are Newton's laws of motion?">Newton's laws</button>
-                        <button class="question-chip" data-question="How to improve my essay writing?">Essay writing</button>
-                    </div>
-                </div>
+                const knowledgeBase = {
+                    "study techniques|how to study|study methods": "Effective study techniques include:\n\n1. **Active Recall**: Test yourself without looking at notes\n2. **Spaced Repetition**: Review at increasing intervals\n3. **Pomodoro Technique**: 25 min study, 5 min break\n4. **Feynman Technique**: Explain concepts simply\n5. **Interleaving**: Mix different topics\n6. **Practice Testing**: Use past exams or quizzes\n\nTry combining 2-3 techniques for best results!",
+                    "time management|schedule|organize time": "Time management tips:\n\n📅 **Plan weekly**: Schedule study sessions\n⏰ **Use Pomodoro**: 25/5 work/break cycles\n🎯 **Prioritize**: Focus on important tasks first\n📝 **To-do lists**: Break tasks into small steps\n🔄 **Review**: Adjust schedule weekly\n💤 **Include breaks**: Rest is crucial for learning",
+                    "math|algebra|calculus|geometry": "Math study tips:\n\n🔢 **Practice daily**: Math requires consistency\n📐 **Understand concepts**: Don't just memorize\n✏️ **Show work**: Step-by-step solutions\n📈 **Visualize**: Use graphs and diagrams\n🔍 **Check work**: Review mistakes\n🎯 **Focus on weaknesses**: Practice difficult areas",
+                    "science|physics|chemistry|biology": "Science study tips:\n\n🔬 **Understand principles**: Focus on concepts\n📊 **Use diagrams**: Visual representations\n🧪 **Experiments**: Hands-on learning when possible\n🌍 **Real-world**: Connect to everyday life\n📝 **Key terms**: Learn vocabulary\n🔗 **Relationships**: Understand how concepts connect",
+                    "hello|hi|hey": "Hello! I'm your StudyZen AI Assistant. How can I help with your studies today? 🎓",
+                    "thank|thanks": "You're welcome! Keep up the great work with your studies. Consistency is key to success! 💪",
+                };
                 
-                <!-- Input Area -->
-                <div class="chat-input-area">
-                    <div class="input-container">
-                        <textarea id="ai-input" 
-                                  placeholder="Ask me anything about studying, homework, or learning..."
-                                  rows="1"
-                                  autocomplete="off"></textarea>
-                        <button id="send-ai-message">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    <div class="input-actions">
-                        <button class="action-btn" id="clear-chat">
-                            <i class="fas fa-trash"></i> Clear Chat
-                        </button>
-                        <div class="model-selector">
-                            <select id="ai-model">
-                                <option value="gemini">Gemini Pro (Recommended)</option>
-                                <option value="huggingface">Hugging Face Llama</option>
-                                <option value="fallback">Local Knowledge Base</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                // Check for matches
+                for (const [keywords, response] of Object.entries(knowledgeBase)) {
+                    const keywordArray = keywords.split('|');
+                    if (keywordArray.some(keyword => messageLower.includes(keyword))) {
+                        return response;
+                    }
+                }
+                
+                // Default response
+                return "I'm here to help with study-related questions! Could you rephrase your question or ask about:\n• Study techniques\n• Homework help\n• Time management\n• Subject explanations?";
+            };
             
-            <!-- Alternative: Local Knowledge Base (always works) -->
-            <div class="local-kb" id="local-kb">
-                <h3><i class="fas fa-book"></i> Quick Study Help (Works Offline)</h3>
-                <div class="kb-topics">
-                    <button class="kb-topic" data-topic="study-techniques">
-                        <i class="fas fa-graduation-cap"></i> Study Techniques
-                    </button>
-                    <button class="kb-topic" data-topic="time-management">
-                        <i class="fas fa-clock"></i> Time Management
-                    </button>
-                    <button class="kb-topic" data-topic="memory-techniques">
-                        <i class="fas fa-brain"></i> Memory Techniques
-                    </button>
-                    <button class="kb-topic" data-topic="exam-prep">
-                        <i class="fas fa-file-alt"></i> Exam Preparation
-                    </button>
-                </div>
-            </div>
+            // Handle user message
+            const handleUserMessage = async () => {
+                if (!aiInput || !aiInput.value.trim()) return;
+                
+                const userMessage = aiInput.value.trim();
+                
+                // Add user message
+                addMessage(userMessage, true);
+                
+                // Clear input
+                aiInput.value = '';
+                aiInput.style.height = 'auto';
+                
+                // Show typing indicator
+                const typingIndicator = showTypingIndicator();
+                
+                try {
+                    let aiResponse;
+                    
+                    // Try to use Gemini API if API key is provided
+                    if (apiKey && apiKey !== "AIzaSyBWLjq6VE_I2xTvHd-UR8300yF7BwGBNoU") {
+                        aiResponse = await callGeminiAPI(userMessage);
+                    } else {
+                        // Fallback to local responses
+                        aiResponse = getLocalAIResponse(userMessage);
+                    }
+                    
+                    // Remove typing indicator
+                    if (typingIndicator && typingIndicator.parentNode) {
+                        typingIndicator.remove();
+                    }
+                    
+                    // Add AI response
+                    addMessage(aiResponse, false);
+                    
+                } catch (error) {
+                    console.error('AI response error:', error);
+                    
+                    // Remove typing indicator
+                    if (typingIndicator && typingIndicator.parentNode) {
+                        typingIndicator.remove();
+                    }
+                    
+                    // Fallback response
+                    const fallbackResponse = getLocalAIResponse(userMessage);
+                    addMessage(fallbackResponse, false);
+                }
+            };
             
-            <div class="ai-disclaimer">
-                <p><i class="fas fa-info-circle"></i> This AI assistant uses external APIs. For complex academic questions, always verify with teachers or textbooks.</p>
-            </div>
-        </div>
-    `;
-
-    // Add AI Assistant styles
-    this.addAIAssistantStyles();
-    
-    // Initialize AI Assistant
-    this.initRealAIAssistant();
-}
-
-initRealAIAssistant() {
-    console.log("Initializing Real AI Assistant");
-    
-    // Check for saved API key
-    this.checkSavedAPIKey();
-    
-    // Setup event listeners
-    this.setupAIAssistantEvents();
-}
-
-checkSavedAPIKey() {
-    const savedKey = localStorage.getItem('studyzen_ai_api_key');
-    const savedProvider = localStorage.getItem('studyzen_ai_provider') || 'gemini';
-    
-    if (savedKey && savedKey.length > 10) {
-        // Hide setup instructions, show chat
-        const setupCard = document.getElementById('api-setup');
-        const chatContainer = document.getElementById('chat-container');
-        
-        if (setupCard) setupCard.style.display = 'none';
-        if (chatContainer) chatContainer.style.display = 'block';
-        
-        // Update status
-        this.updateAIStatus('connected', 'AI is ready! Ask your question.');
-        
-        // Test the saved key
-        this.testAPIKey(savedKey, savedProvider, true);
-    }
-}
-
-setupAIAssistantEvents() {
-    // Toggle API instructions
-    const toggleBtn = document.getElementById('toggle-api-instructions');
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            const content = document.getElementById('api-instructions');
-            const icon = toggleBtn.querySelector('i');
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                icon.className = 'fas fa-chevron-up';
-            } else {
-                content.style.display = 'none';
-                icon.className = 'fas fa-chevron-down';
+            // Event listeners
+            if (sendBtn) {
+                sendBtn.addEventListener('click', handleUserMessage);
             }
-        });
-    }
-    
-    // API option selection
-    document.querySelectorAll('.api-option').forEach(option => {
-        option.addEventListener('click', () => {
-            document.querySelectorAll('.api-option').forEach(opt => opt.classList.remove('active'));
-            option.classList.add('active');
-        });
-    });
-    
-    // Save API key
-    const saveBtn = document.getElementById('save-api-key');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', () => {
-            this.saveAPIKey();
-        });
-    }
-    
-    // Test API key
-    const testBtn = document.getElementById('test-api-key');
-    if (testBtn) {
-        testBtn.addEventListener('click', () => {
-            this.testAPIKey();
-        });
-    }
-    
-    // Chat functionality
-    this.setupChatFunctionality();
-}
-
-saveAPIKey() {
-    const apiKeyInput = document.getElementById('api-key-input');
-    const selectedProvider = document.querySelector('.api-option.active').dataset.api;
-    
-    if (!apiKeyInput || !apiKeyInput.value.trim()) {
-        this.showAPIMessage('Please enter an API key', 'error');
-        return;
-    }
-    
-    const apiKey = apiKeyInput.value.trim();
-    
-    // Save to localStorage
-    localStorage.setItem('studyzen_ai_api_key', apiKey);
-    localStorage.setItem('studyzen_ai_provider', selectedProvider);
-    
-    // Hide setup, show chat
-    const setupCard = document.getElementById('api-setup');
-    const chatContainer = document.getElementById('chat-container');
-    
-    if (setupCard) setupCard.style.display = 'none';
-    if (chatContainer) chatContainer.style.display = 'block';
-    
-    this.showAPIMessage('API key saved successfully!', 'success');
-    this.updateAIStatus('connected', 'AI is ready! Testing connection...');
-    
-    // Test the key
-    this.testAPIKey(apiKey, selectedProvider, false);
-}
-
-async testAPIKey(apiKey = null, provider = null, isSaved = false) {
-    if (!apiKey) {
-        const apiKeyInput = document.getElementById('api-key-input');
-        if (!apiKeyInput) return;
-        apiKey = apiKeyInput.value.trim();
-        provider = document.querySelector('.api-option.active').dataset.api;
-    }
-    
-    if (!apiKey) {
-        this.showAPIMessage('Please enter an API key first', 'error');
-        return;
-    }
-    
-    this.updateAIStatus('connecting', 'Testing API connection...');
-    
-    try {
-        let testResult;
-        
-        if (provider === 'gemini') {
-            testResult = await this.testGeminiAPI(apiKey);
-        } else if (provider === 'huggingface') {
-            testResult = await this.testHuggingFaceAPI(apiKey);
-        } else {
-            testResult = { success: true, message: 'Using local knowledge base' };
-        }
-        
-        if (testResult.success) {
-            this.showAPIMessage(`✅ ${testResult.message}`, 'success');
-            this.updateAIStatus('connected', 'AI is ready! Ask your question.');
             
-            if (!isSaved) {
-                // Auto-save if successful
-                localStorage.setItem('studyzen_ai_api_key', apiKey);
-                localStorage.setItem('studyzen_ai_provider', provider);
+            if (aiInput) {
+                aiInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleUserMessage();
+                    }
+                });
+                
+                // Auto-resize textarea
+                aiInput.addEventListener('input', () => {
+                    aiInput.style.height = 'auto';
+                    aiInput.style.height = Math.min(aiInput.scrollHeight, 120) + 'px';
+                });
             }
-        } else {
-            this.showAPIMessage(`❌ ${testResult.message}`, 'error');
-            this.updateAIStatus('error', 'API connection failed');
-        }
-    } catch (error) {
-        console.error('API test error:', error);
-        this.showAPIMessage('Connection test failed. Check your key or try another provider.', 'error');
-        this.updateAIStatus('error', 'Connection failed');
-    }
-}
-
-async testGeminiAPI(apiKey) {
-    try {
-        // Simple test request to Gemini
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: "Hello! Are you working?"
-                    }]
-                }]
-            })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            return { 
-                success: true, 
-                message: 'Gemini API connected successfully!' 
-            };
-        } else {
-            const error = await response.json();
-            return { 
-                success: false, 
-                message: `Gemini API error: ${error.error?.message || 'Invalid API key'}` 
-            };
-        }
-    } catch (error) {
-        return { 
-            success: false, 
-            message: `Network error: ${error.message}` 
-        };
-    }
-}
-
-async testHuggingFaceAPI(apiKey) {
-    try {
-        const response = await fetch('https://api-inference.huggingface.co/models/google/flan-t5-base', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                inputs: "Is this API working?"
-            })
-        });
-        
-        if (response.ok) {
-            return { 
-                success: true, 
-                message: 'Hugging Face API connected!' 
-            };
-        } else if (response.status === 401) {
-            return { 
-                success: false, 
-                message: 'Invalid Hugging Face token' 
-            };
-        } else {
-            return { 
-                success: true, 
-                message: 'Hugging Face API responding (rate limits may apply)' 
-            };
-        }
-    } catch (error) {
-        return { 
-            success: false, 
-            message: `Hugging Face error: ${error.message}` 
-        };
-    }
-}
-
-updateAIStatus(status, text) {
-    const statusDot = document.getElementById('ai-status');
-    const statusText = document.getElementById('ai-status-text');
-    
-    if (!statusDot || !statusText) return;
-    
-    statusDot.className = 'status-dot';
-    
-    switch(status) {
-        case 'connected':
-            statusDot.classList.add('online');
-            break;
-        case 'connecting':
-            statusDot.classList.add('connecting');
-            break;
-        case 'error':
-            statusDot.classList.add('error');
-            break;
-        default:
-            statusDot.classList.add('offline');
-    }
-    
-    statusText.textContent = text;
-}
-
-showAPIMessage(message, type = 'info') {
-    const resultDiv = document.getElementById('api-test-result');
-    if (!resultDiv) return;
-    
-    resultDiv.innerHTML = `
-        <div class="api-message api-${type}">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            ${message}
-        </div>
-    `;
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        resultDiv.innerHTML = '';
-    }, 5000);
-}
-
-setupChatFunctionality() {
-    const chatMessages = document.getElementById('chat-messages');
-    const aiInput = document.getElementById('ai-input');
-    const sendBtn = document.getElementById('send-ai-message');
-    const clearBtn = document.getElementById('clear-chat');
-    const questionChips = document.querySelectorAll('.question-chip');
-    const kbTopics = document.querySelectorAll('.kb-topic');
-    const modelSelect = document.getElementById('ai-model');
-    
-    // Initialize chat history
-    this.chatHistory = JSON.parse(localStorage.getItem('studyzen_chat_history') || '[]');
-    
-    // Load chat history
-    if (this.chatHistory.length > 0) {
-        this.loadChatHistory();
-    }
-    
-    // Function to add message
-    this.addMessage = function(text, isUser = false, save = true) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-        
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
-        messageDiv.innerHTML = `
-            <div class="message-avatar">
-                <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
-            </div>
-            <div class="message-content">
-                <div class="message-text">${this.formatMessageText(text)}</div>
-                <div class="message-time">${timeString}</div>
-            </div>
-        `;
-        
-        if (chatMessages) {
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Save to history
-        if (save) {
-            this.chatHistory.push({
-                text: text,
-                isUser: isUser,
-                timestamp: now.toISOString()
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if (confirm('Clear all chat history?')) {
+                        clearChatHistory();
+                    }
+                });
+            }
+            
+            // Quick question chips
+            questionChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const question = chip.getAttribute('data-question');
+                    if (aiInput) {
+                        aiInput.value = question;
+                        handleUserMessage();
+                    }
+                });
             });
             
-            // Keep only last 50 messages
-            if (this.chatHistory.length > 50) {
-                this.chatHistory = this.chatHistory.slice(-50);
-            }
-            
-            localStorage.setItem('studyzen_chat_history', JSON.stringify(this.chatHistory));
-        }
-    };
-    
-    // Function to show typing indicator
-    this.showTypingIndicator = function() {
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'message ai-message';
-        typingDiv.id = 'typing-indicator';
-        
-        typingDiv.innerHTML = `
-            <div class="message-avatar">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div class="message-content">
-                <div class="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-            </div>
-        `;
-        
-        if (chatMessages) {
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        return typingDiv;
-    };
-    
-    // Event listeners
-    if (sendBtn) {
-        sendBtn.addEventListener('click', () => {
-            this.handleUserMessage();
-        });
-    }
-    
-    if (aiInput) {
-        aiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.handleUserMessage();
-            }
-        });
-        
-        // Auto-resize textarea
-        aiInput.addEventListener('input', () => {
-            aiInput.style.height = 'auto';
-            aiInput.style.height = Math.min(aiInput.scrollHeight, 120) + 'px';
-        });
-    }
-    
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Clear all chat history?')) {
-                this.clearChatHistory();
-            }
-        });
-    }
-    
-    // Quick questions
-    questionChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            const question = chip.getAttribute('data-question');
-            if (aiInput) {
-                aiInput.value = question;
-                this.handleUserMessage();
-            }
-        });
-    });
-    
-    // Knowledge base topics
-    kbTopics.forEach(topic => {
-        topic.addEventListener('click', () => {
-            const topicType = topic.getAttribute('data-topic');
-            this.handleKnowledgeBaseTopic(topicType);
-        });
-    });
-}
-
-async handleUserMessage() {
-    const aiInput = document.getElementById('ai-input');
-    if (!aiInput || !aiInput.value.trim()) return;
-    
-    const userMessage = aiInput.value.trim();
-    
-    // Add user message
-    this.addMessage(userMessage, true);
-    
-    // Clear input
-    aiInput.value = '';
-    aiInput.style.height = 'auto';
-    
-    // Get API key and provider
-    const apiKey = localStorage.getItem('studyzen_ai_api_key');
-    const provider = localStorage.getItem('studyzen_ai_provider') || 'gemini';
-    const model = document.getElementById('ai-model')?.value || provider;
-    
-    // Show typing indicator
-    const typingIndicator = this.showTypingIndicator();
-    
-    try {
-        let aiResponse;
-        
-        if (apiKey && model !== 'fallback') {
-            // Use real AI API
-            if (model === 'gemini' || provider === 'gemini') {
-                aiResponse = await this.callGeminiAPI(apiKey, userMessage);
-            } else if (model === 'huggingface') {
-                aiResponse = await this.callHuggingFaceAPI(apiKey, userMessage);
+            // Load chat history
+            if (this.chatHistory.length > 0) {
+                this.loadChatHistory();
             }
         }
-        
-        // Fallback to local knowledge base if API fails or not available
-        if (!aiResponse) {
-            aiResponse = this.getLocalAIResponse(userMessage);
-        }
-        
-        // Remove typing indicator
-        if (typingIndicator && typingIndicator.parentNode) {
-            typingIndicator.remove();
-        }
-        
-        // Add AI response
-        this.addMessage(aiResponse, false);
-        
-    } catch (error) {
-        console.error('AI response error:', error);
-        
-        // Remove typing indicator
-        if (typingIndicator && typingIndicator.parentNode) {
-            typingIndicator.remove();
-        }
-        
-        // Fallback response
-        const fallbackResponse = this.getLocalAIResponse(userMessage);
-        this.addMessage(fallbackResponse, false);
     }
-}
-
-async callGeminiAPI(apiKey, message) {
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `You are a helpful study assistant. Answer this study-related question: "${message}". Provide clear, educational explanations. If it's not study-related, politely redirect to study topics.`
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 1000,
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || 
-               "I apologize, but I couldn't generate a response. Please try again.";
-        
-    } catch (error) {
-        console.error('Gemini API error:', error);
-        throw error;
-    }
-}
-
-async callHuggingFaceAPI(apiKey, message) {
-    try {
-        const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                inputs: `Student question: ${message}`,
-                parameters: {
-                    max_length: 500,
-                    temperature: 0.7,
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Hugging Face error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data[0]?.generated_text || "I received your question but couldn't process it properly.";
-        
-    } catch (error) {
-        console.error('Hugging Face API error:', error);
-        throw error;
-    }
-}
-
-getLocalAIResponse(message) {
-    const messageLower = message.toLowerCase();
-    
-    // Enhanced local knowledge base
-    const knowledgeBase = {
-        // Study techniques
-        "study techniques|how to study|study methods": "Effective study techniques include:\n\n1. **Active Recall**: Test yourself without looking at notes\n2. **Spaced Repetition**: Review at increasing intervals\n3. **Pomodoro Technique**: 25 min study, 5 min break\n4. **Feynman Technique**: Explain concepts simply\n5. **Interleaving**: Mix different topics\n6. **Practice Testing**: Use past exams or quizzes\n\nTry combining 2-3 techniques for best results!",
-        
-        // Time management
-        "time management|schedule|organize time": "Time management tips:\n\n📅 **Plan weekly**: Schedule study sessions\n⏰ **Use Pomodoro**: 25/5 work/break cycles\n🎯 **Prioritize**: Focus on important tasks first\n📝 **To-do lists**: Break tasks into small steps\n🔄 **Review**: Adjust schedule weekly\n💤 **Include breaks**: Rest is crucial for learning",
-        
-        // Memory techniques
-        "memory|memorize|remember": "Memory techniques:\n\n🧠 **Mnemonics**: Create associations\n🏰 **Memory Palace**: Visualize locations\n🔗 **Chunking**: Group information\n🎨 **Visualization**: Create mental images\n📚 **Spaced Repetition**: Review over time\n🗣️ **Teach others**: Reinforces learning",
-        
-        // Exam preparation
-        "exam|test|final|midterm": "Exam preparation:\n\n📖 **Start early**: Don't cram\n📋 **Study guides**: Create summaries\n📝 **Practice tests**: Simulate exam conditions\n⏳ **Time yourself**: Practice pacing\n🛌 **Sleep well**: Before exam day\n💧 **Stay hydrated**: Drink water\n😌 **Stay calm**: Practice deep breathing",
-        
-        // Math help
-        "math|algebra|calculus|geometry": "Math study tips:\n\n🔢 **Practice daily**: Math requires consistency\n📐 **Understand concepts**: Don't just memorize\n✏️ **Show work**: Step-by-step solutions\n📈 **Visualize**: Use graphs and diagrams\n🔍 **Check work**: Review mistakes\n🎯 **Focus on weaknesses**: Practice difficult areas",
-        
-        // Science help
-        "science|physics|chemistry|biology": "Science study tips:\n\n🔬 **Understand principles**: Focus on concepts\n📊 **Use diagrams**: Visual representations\n🧪 **Experiments**: Hands-on learning when possible\n🌍 **Real-world**: Connect to everyday life\n📝 **Key terms**: Learn vocabulary\n🔗 **Relationships**: Understand how concepts connect",
-        
-        // Writing help
-        "writing|essay|paper|composition": "Writing tips:\n\n📝 **Outline first**: Plan structure\n✍️ **Write drafts**: Don't aim for perfection first\n📚 **Research**: Gather information\n🔍 **Edit later**: Separate writing and editing\n📖 **Read aloud**: Catch errors\n⏰ **Allow time**: Don't rush the process",
-        
-        // Focus and motivation
-        "focus|concentrate|distracted|motivation": "Focus and motivation:\n\n🚫 **Remove distractions**: Phone, social media\n🎯 **Clear goals**: Know what to accomplish\n🏆 **Small rewards**: Celebrate progress\n👥 **Study groups**: Accountability\n💪 **Routine**: Consistent study times\n🔄 **Variety**: Change study methods",
-        
-        // General
-        "hello|hi|hey": "Hello! I'm your StudyZen AI Assistant. How can I help with your studies today? 🎓",
-        "thank|thanks": "You're welcome! Keep up the great work with your studies. Consistency is key to success! 💪",
-        "help": "I can help with:\n• Study techniques and methods\n• Subject-specific questions\n• Time management\n• Exam preparation\n• Memory techniques\n• Writing and research\n\nWhat would you like to know?",
-    };
-    
-    // Check for matches
-    for (const [keywords, response] of Object.entries(knowledgeBase)) {
-        const keywordArray = keywords.split('|');
-        if (keywordArray.some(keyword => messageLower.includes(keyword))) {
-            return response;
-        }
-    }
-    // Default response
-    const defaultResponses = [
-        "I'm here to help with study-related questions! Could you rephrase your question or ask about:\n• Study techniques\n• Homework help\n• Time management\n• Subject explanations?",
-        "That's an interesting question! For the best help, could you make it more specific to studying or learning?",
-        "I specialize in study-related topics. Try asking about study methods, subject help, or learning strategies!",
-        "As a study assistant, I'm best equipped to help with academic topics. What subject or study technique would you like to know about?"
-    ];
-    
-    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-}
-
-handleKnowledgeBaseTopic(topic) {
-    const topics = {
-        "study-techniques": "What are the most effective study techniques and how do I use them?",
-        "time-management": "How can I better manage my study time and create an effective schedule?",
-        "memory-techniques": "What are the best techniques to improve memory and retention?",
-        "exam-prep": "How should I prepare for exams and manage test anxiety?"
-    };
-    
-    if (topics[topic]) {
-        const aiInput = document.getElementById('ai-input');
-        if (aiInput) {
-            aiInput.value = topics[topic];
-            this.handleUserMessage();
-        }
-    }
-}
-
-formatMessageText(text) {
-    // Convert markdown-style formatting to HTML
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>')
-        .replace(/•/g, '•')
-        .replace(/(\d+\.)/g, '<br>$1')
-        .replace(/🎓|📚|⏰|🎯|🧠|📝|🔬|📖/g, match => `<span class="emoji">${match}</span>`);
-}
-
-loadChatHistory() {
-    const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages || this.chatHistory.length === 0) return;
-    
-    // Clear existing messages except the first welcome
-    const welcomeMsg = chatMessages.querySelector('.message');
-    chatMessages.innerHTML = '';
-    if (welcomeMsg) {
-        chatMessages.appendChild(welcomeMsg);
-    }
-    
-    // Load history
-    this.chatHistory.forEach(msg => {
-        this.addMessage(msg.text, msg.isUser, false); // Don't save again
-    });
-}
-
-clearChatHistory() {
-    this.chatHistory = [];
-    localStorage.removeItem('studyzen_chat_history');
-    
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-        chatMessages.innerHTML = `
-            <div class="message ai-message">
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-text">
-                        <strong>Chat cleared! 💫</strong><br><br>
-                        I'm ready to help with your studies. What would you like to learn about today?
-                    </div>
-                    <div class="message-time">Just now</div>
-                </div>
-            </div>
-        `;
-    }
-}
-
 
     // Start the application
     console.log("Starting StudyZen application...");
     const app = new StudyZenApp();
-    window.app = app; // Make accessible for debugging
+    window.app = app; 
 });
