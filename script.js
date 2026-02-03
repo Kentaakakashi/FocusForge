@@ -1150,6 +1150,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 case 'stats':
                     this.loadStats(container);
                     break;
+                     case 'chatbot':  
+                    this.loadChatbot(container);  
+                    break;  
                 default:
                     this.loadOverview(container);
             }
