@@ -1132,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         }
 
-        loadFeature(feature) {
+               loadFeature(feature) {
             console.log("Loading feature:", feature);
             const container = document.getElementById('feature-container');
             if (!container) return;
